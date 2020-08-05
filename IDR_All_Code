@@ -1,0 +1,1513 @@
+package com.example.app;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class SQLConnection extends SQLiteOpenHelper {
+
+    private static String DB_Name = "info";
+    static final String TABLE_NAME = "users";
+
+    private static final int DB_Version = 1;
+
+    public static final String Column_id = "_id";
+    public static final String Column_imei = "imei";
+    public static final String Column_Surname = "Surname";
+    public static final String Column_Name = "Name";
+    public static final String Column_Name2 = "Name2";
+    public static final String Column_PassSer = "Seria_Passport";
+    public static final String Column_PasNum = "Number_Passport";
+    public static final String Column_Log = "Login";
+    public static final String Column_Pass = "Password";
+    public static final String Column_CarBrand = "Car_Brand";
+    public static final String Column_CarModel = "Car_Model";
+    public static final String Column_GosNomer = "Gos_nomer";
+    public static final String Column_VIN = "VIN";
+    public static final String Column_FlagFirstTime = "FlagFirstTime";
+
+    Context mycontext;
+
+    public SQLConnection(Context context) {
+        super(context, DB_Name, null, DB_Version);
+        this.mycontext = context;
+        //DB_PATH = "/data/data/" + context.getPackageName() + "/databases" + "/" + DB_PATH;
+    }
+
+/*    void create_db() {
+        InputStream myInput = null;
+        OutputStream myOutput = null;
+        try {
+            File file = new File(DB_PATH);
+            if (!file.exists()) {
+                this.getReadableDatabase();
+                myInput = mycontext.getAssets().open(DB_Name);
+                String outFileName = DB_PATH;
+                myOutput = new FileOutputStream(outFileName);
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = myInput.read(buffer)) > 0) {
+                    myOutput.write(buffer, 0, length);
+                }
+                myOutput.flush();
+                myOutput.close();
+                myInput.close();
+            }
+        } catch (IOException ex) {
+            Log.d("DatabaseHelper", ex.getMessage());
+        }
+    }*/
+    /*public void updateDB() throws IOException {
+        if (mNeedUpdate) {
+            File dbfile = new File(DB_PATH + DB_Name);
+            if (dbfile.exists()) {
+                dbfile.delete();
+            }
+            copyDataBase();
+            mNeedUpdate = false;
+        }
+    }
+
+    private boolean checkdb() {
+        File dbfile = new File(DB_PATH + DB_Name);
+        return dbfile.exists();
+    }
+
+    private void copyDataBase() {
+        if(!checkdb()) {
+            this.getReadableDatabase();
+            this.close();
+            try {
+                copyDBFile();
+            } catch (IOException ex) {
+                throw new Error("ErrorCopyingDataBase");
+            }
+        }
+    }
+
+    private void copyDBFile() throws IOException
+    {
+        InputStream mInput = mycontext.getResources().openRawResource();
+        OutputStream mOutput = new FileOutputStream(DB_Path + DB_Name);
+        byte[] mbuff = new byte[1024];
+        int mlength;
+        while ((mlength = mInput.read(mbuff)) > 0) {
+            mOutput.write(mbuff, 0, mlength);
+        }
+        mOutput.flush();
+        mOutput.close();
+        mInput.close();
+    }
+*/
+/*
+    public SQLiteDatabase open() throws SQLException {
+        return SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READWRITE);
+    }
+*/
+
+/*    @Override
+    public synchronized void close() {
+        if (mdb != null)
+            mdb.close();
+        super.close();
+    }*/
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_NAME + "(" + Column_id + " INTEGER PRIMARY KEY," + Column_imei
+                + " TEXT," + Column_Surname + " TEXT," + Column_Name + " TEXT," + Column_Name2
+                + " TEXT," + Column_PassSer + " TEXT," + Column_PasNum + " TEXT," + Column_Log
+                + " TEXT," + Column_Pass + " TEXT," + Column_CarBrand + " TEXT," + Column_CarModel
+                + " TEXT," + Column_GosNomer + " TEXT," + Column_VIN + " TEXT," + Column_FlagFirstTime + " INTEGER" + ")");
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+    }
+}
+
+
+package com.example.app;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+
+import static android.graphics.Color.CYAN;
+
+public class OptionsActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+
+    Switch switch_col;
+    int col;
+    Boolean ch;
+    ConstraintLayout constraintLayout;
+    SharedPreferences prefcol;
+    public static final String APP_PREFERENCEScol = "settingscol";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_options);
+
+        prefcol = getSharedPreferences(APP_PREFERENCEScol, Context.MODE_PRIVATE);
+
+        constraintLayout = findViewById(R.id.ConLay);
+        switch_col = findViewById(R.id.switch_color);
+
+        constraintLayout.setBackgroundColor(prefcol.getInt("col", Color.WHITE));
+        switch_col.setChecked(prefcol.getBoolean("ch", false));
+
+        if(switch_col != null)
+        {
+            switch_col.setOnCheckedChangeListener(this);
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+    {
+        SharedPreferences.Editor editorcol = prefcol.edit();
+
+        if(switch_col.isChecked() == true)
+        {
+            constraintLayout.setBackgroundColor(CYAN);
+            col = Color.CYAN;
+            ch = true;
+        }
+        else
+        {
+            constraintLayout.setBackgroundColor(Color.WHITE);
+            col = Color.WHITE;
+            ch = false;
+        }
+        editorcol.putBoolean("ch", isChecked);
+        editorcol.putInt("col", col);
+        editorcol.apply();
+    }
+}
+
+package com.example.app;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+public class Registration extends AppCompatActivity implements View.OnClickListener {
+
+    public static final String APP_PREFERENCESR = "mysettings";
+
+    public static final String APP_PREFERENCESFIRST = "firstsettings";
+    public static final String APP_PREFERENCESSECOND = "secondsettings";
+    public static final String APP_PREFERENCESTHIRD = "thirdsettings";
+
+    Button registr;
+    Button nextreg;
+
+    String name;
+    String surname;
+    String name2;
+    String seria;
+    String nomer;
+    String e_mail;
+    String password;
+    String password2;
+
+    String first;
+    String second;
+    String third;
+
+    int FlagFirstTime = 0; // 0 - регистрация еще не закончена, 1 - регистрация полностью завершена
+
+    EditText NameU;
+    EditText SurnameU;
+    EditText Name2U;
+    EditText Seria;
+    EditText Nomer;
+    EditText E_mail;
+    EditText Password;
+    EditText Password2;
+
+    TextView Vizar;
+    TextView ProodolReg;
+
+    SharedPreferences preferencesr;
+
+    SharedPreferences preffirstuser;
+    SharedPreferences prefseconduser;
+    SharedPreferences prefthirduser;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_registration);
+
+        registr = findViewById(R.id.Registr);
+        nextreg = findViewById(R.id.NextRegistr);
+
+        NameU = findViewById(R.id.NameU);
+        SurnameU = findViewById(R.id.SurnameU);
+        Name2U = findViewById(R.id.Name2U);
+        Seria = findViewById(R.id.Series);
+        Nomer = findViewById(R.id.Number);
+        E_mail = findViewById(R.id.E_mail);
+        Password = findViewById(R.id.Password1);
+        Password2 = findViewById(R.id.Password2);
+        first = "Иван";
+        second = "Петр";
+        third = "Александр";
+        Vizar = findViewById(R.id.ViZareg);
+        ProodolReg = findViewById(R.id.Prodolzhite);
+
+        preferencesr = getSharedPreferences(APP_PREFERENCESR, Context.MODE_PRIVATE);
+
+        preffirstuser = getSharedPreferences(APP_PREFERENCESFIRST, Context.MODE_PRIVATE);
+        prefseconduser = getSharedPreferences(APP_PREFERENCESSECOND, Context.MODE_PRIVATE);
+        prefthirduser = getSharedPreferences(APP_PREFERENCESTHIRD, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.Registr) {
+            Vizar.setText(" Невозможно зарегистрировать еще одного  пользователя");
+            if (NameU.getText().toString().equals("") || SurnameU.getText().toString().equals("") ||
+                    Name2U.getText().toString().equals("") || Seria.getText().toString().equals("") ||
+                    Nomer.getText().toString().equals("") || E_mail.getText().toString().equals("") ||
+                    Password.getText().toString().equals("") || Password2.getText().toString().equals(""))
+            {
+                Vizar.setText("Не все поля заполнены!");
+            }
+            else {
+                name = NameU.getText().toString();
+                surname = SurnameU.getText().toString();
+                name2 = Name2U.getText().toString();
+                seria = Seria.getText().toString();
+                nomer = Nomer.getText().toString();
+                e_mail = E_mail.getText().toString();
+                password = Password.getText().toString();
+                password2 = Password2.getText().toString();
+
+                if (password.equals(password2)) {
+                    //nextreg.setVisibility(View.VISIBLE);
+                    Vizar.setText("Вы успешнозавершили 1-ый этап регистрации");
+                    ProodolReg.setText("Нажмите *Продолжить* для регистрации своего ТС");
+                    SharedPreferences.Editor editor = preferencesr.edit();
+                    editor.putString("name", name);
+                    editor.putString("surname", surname);
+                    editor.putString("name2", name2);
+                    editor.putString("seria", seria);
+                    editor.putString("nomer", nomer);
+                    editor.putString("e_mail", e_mail);
+                    editor.putString("password", password);
+                    editor.putInt("FlagFirstTime", FlagFirstTime);
+                    editor.apply();
+                    if(name.equals(first))
+                    {
+                        SharedPreferences.Editor firsteditor = preffirstuser.edit();
+                        firsteditor.putString("name", name);
+                        firsteditor.putString("surname", surname);
+                        firsteditor.putString("name2", name2);
+                        firsteditor.putString("seria", seria);
+                        firsteditor.putString("nomer", nomer);
+                        firsteditor.putString("e_mail", e_mail);
+                        firsteditor.putString("password", password);
+                        firsteditor.putInt("FlagFirstTime", FlagFirstTime);
+                        firsteditor.apply();
+                    }
+                    if(name.equals(second))
+                    {
+                        SharedPreferences.Editor secondeditor = prefseconduser.edit();
+                        secondeditor.putString("name", name);
+                        secondeditor.putString("surname", surname);
+                        secondeditor.putString("name2", name2);
+                        secondeditor.putString("seria", seria);
+                        secondeditor.putString("nomer", nomer);
+                        secondeditor.putString("e_mail", e_mail);
+                        secondeditor.putString("password", password);
+                        secondeditor.putInt("FlagFirstTime", FlagFirstTime);
+                        secondeditor.apply();
+                    }
+                    if(name.equals(third))
+                    {
+                        SharedPreferences.Editor thirdeditor = prefthirduser.edit();
+                        thirdeditor.putString("name", name);
+                        thirdeditor.putString("surname", surname);
+                        thirdeditor.putString("name2", name2);
+                        thirdeditor.putString("seria", seria);
+                        thirdeditor.putString("nomer", nomer);
+                        thirdeditor.putString("e_mail", e_mail);
+                        thirdeditor.putString("password", password);
+                        thirdeditor.putInt("FlagFirstTime", FlagFirstTime);
+                        thirdeditor.apply();
+                    }
+                }
+                else {
+                    Vizar.setText("Пароли не совпадают");
+                }
+            }
+        }
+        else if(v.getId() == R.id.NextRegistr)
+        {
+            Intent intent = new Intent(this, ThirdActivity.class);
+            startActivity(intent);
+        }
+    }
+}
+
+package com.example.app;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+public class ThirdActivity extends AppCompatActivity implements View.OnClickListener {
+
+    SharedPreferences prefreg;
+    SharedPreferences prefcol;
+    SharedPreferences pref;
+
+    static int FlagFirstTime;
+
+    Button Save;
+    Button Autorization;
+
+    EditText Imei;
+    EditText SurName;
+    EditText Name;
+    EditText Name2;
+    EditText Seria;
+    EditText Number;
+    EditText E_Mail;
+    EditText Car_brand;
+    EditText Car_model;
+    EditText VIN;
+    EditText Gos_nomer;
+
+    TextView Errornevse;
+
+    String imei;
+    String surname;
+    String name;
+    String name2;
+    String seria;
+    String nomer;
+    String e_mail;
+    String brand;
+    String model;
+    String vin;
+    String gos_nomer;
+    String password;
+
+    ConstraintLayout constraintLayout3;
+    int FlagUser;
+
+    SQLConnection sqlconn;
+
+    SQLiteDatabase mdb;
+    ContentValues contentValues;
+    Cursor cursor;
+
+    public int IdIndex;
+    public int ImeiIndex;
+    public int SurIndex;
+    public int NameIndex;
+    public int Name2Index;
+    public int SeriaIndex;
+    public int NomerIndex;
+    public int LogIndex;
+    public int PassIndex;
+    public int ModelIndex;
+    public int BrandIndex;
+    public int GosnomerIndex;
+    public int VINIndex;
+
+    SharedPreferences prefauto;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_third);
+
+        pref = getSharedPreferences("MSettings", Context.MODE_PRIVATE);
+        prefreg = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+        prefcol = getSharedPreferences("settingscol", Context.MODE_PRIVATE);
+
+        constraintLayout3 = findViewById(R.id.ConsLay3);
+        constraintLayout3.setBackgroundColor(prefcol.getInt("col", Color.WHITE));
+
+        prefauto = getSharedPreferences("AutorSettings", Context.MODE_PRIVATE);
+
+        sqlconn = new SQLConnection(this);
+        mdb = sqlconn.getWritableDatabase();
+
+        contentValues = new ContentValues();
+
+        Imei = findViewById(R.id.IMEIR);
+        SurName = findViewById(R.id.SurNameT);
+        Name = findViewById(R.id.NameT);
+        Name2 = findViewById(R.id.Name2);
+        Seria = findViewById(R.id.SeriesP);
+        Number = findViewById(R.id.NumberP);
+        E_Mail = findViewById(R.id.E_mailT);
+        Car_brand = findViewById(R.id.Car_brandR);
+        Car_model = findViewById(R.id.Car_modelR);
+        VIN = findViewById(R.id.VINR);
+        Gos_nomer = findViewById(R.id.Gos_numberR);
+
+        Errornevse = findViewById(R.id.NeVse);
+
+        Save = findViewById(R.id.Save);
+        Autorization = findViewById(R.id.Autorization);
+
+        FlagFirstTime = prefreg.getInt("FlagFirstTime", 5);
+
+        FlagUser = 0;
+        Save.setVisibility(View.INVISIBLE);
+
+        if (FlagFirstTime == 0) {
+            surname = prefreg.getString("surname", "");
+            name = prefreg.getString("name", "");
+            name2 = prefreg.getString("name2", "");
+            seria = prefreg.getString("seria", "");
+            nomer = prefreg.getString("nomer", "");
+            e_mail = prefreg.getString("e_mail", "");
+            password = prefreg.getString("password", "");
+
+            SurName.setText(surname);
+            Name.setText(name);
+            Name2.setText(name2);
+            Seria.setText(seria);
+            Number.setText(nomer);
+            E_Mail.setText(e_mail);
+
+            Save.setVisibility(View.VISIBLE);
+        }
+        if (FlagFirstTime == 1) {
+            cursor = mdb.query("users", null, null, null, null, null, null);
+            Save.setVisibility(View.INVISIBLE);
+            Autorization.setVisibility(View.INVISIBLE);
+
+            ImeiIndex = cursor.getColumnIndex(SQLConnection.Column_imei);
+            SurIndex = cursor.getColumnIndex(SQLConnection.Column_Surname);
+            NameIndex = cursor.getColumnIndex(SQLConnection.Column_Name);
+            Name2Index = cursor.getColumnIndex(SQLConnection.Column_Name2);
+            SeriaIndex = cursor.getColumnIndex(SQLConnection.Column_PassSer);
+            NomerIndex = cursor.getColumnIndex(SQLConnection.Column_PasNum);
+            LogIndex = cursor.getColumnIndex(SQLConnection.Column_Log);
+            PassIndex = cursor.getColumnIndex(SQLConnection.Column_Pass);
+            BrandIndex = cursor.getColumnIndex(SQLConnection.Column_CarBrand);
+            ModelIndex = cursor.getColumnIndex(SQLConnection.Column_CarModel);
+            GosnomerIndex = cursor.getColumnIndex(SQLConnection.Column_GosNomer);
+            VINIndex = cursor.getColumnIndex(SQLConnection.Column_VIN);*/
+         else {
+                SurName.setText(cursor.getString(2));
+                Name.setText(cursor.getString(3));
+                Name2.setText(cursor.getString(4));
+                Seria.setText(cursor.getString(5));
+                Number.setText(cursor.getString(6));
+                E_Mail.setText(cursor.getString(7));
+                Imei.setText(cursor.getString(1));
+                Car_brand.setText(cursor.getString(9));
+                Car_model.setText(cursor.getString(10));
+                Gos_nomer.setText(cursor.getString(11));
+                VIN.setText(cursor.getString(12));
+            }
+        }*/
+
+        //if (FlagUser == 0) {
+            //Save.setVisibility(View.VISIBLE);
+        String Checkadmin = pref.getString("CheckAd", "0");
+            if ((prefauto.getString("login", "")).equals("Romario2002@list.ru")) {
+                SurName.setText("Авдеев");
+                Name.setText("Роман");
+                Name2.setText("Артемович");
+                Number.setText("646049");
+                Seria.setText("4516");
+                E_Mail.setText("Romario2002@list.ru");
+                Imei.setText("NO DATA");
+                Car_brand.setText("NO DATA");
+                Car_model.setText("NO DATA");
+                Gos_nomer.setText("NO DATA");
+                VIN.setText("NO DATA");
+            }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.Save) {
+            if (Imei.getText().toString().equals("") || Car_brand.getText().toString().equals("") ||
+                    Car_model.getText().toString().equals("") || Gos_nomer.getText().toString().equals("") ||
+                    VIN.getText().toString().equals("")) {
+                Errornevse.setVisibility(View.VISIBLE);
+            } else {
+                Errornevse.setText("Данные сохранены\nНажмите *Авторизоваться* для входа");
+                Errornevse.setVisibility(View.VISIBLE);
+                imei = Imei.getText().toString();
+
+                Autorization.setVisibility(View.VISIBLE);
+
+                brand = Car_brand.getText().toString();
+                model = Car_model.getText().toString();
+                gos_nomer = Gos_nomer.getText().toString();
+                vin = VIN.getText().toString();
+
+                contentValues.put(SQLConnection.Column_imei, imei);
+                contentValues.put(SQLConnection.Column_Surname, surname);
+                contentValues.put(SQLConnection.Column_Name, name);
+                contentValues.put(SQLConnection.Column_Name2, name2);
+                contentValues.put(SQLConnection.Column_PassSer, seria);
+                contentValues.put(SQLConnection.Column_PasNum, nomer);
+                contentValues.put(SQLConnection.Column_Log, e_mail);
+                contentValues.put(SQLConnection.Column_Pass, password);
+                contentValues.put(SQLConnection.Column_CarBrand, brand);
+                contentValues.put(SQLConnection.Column_CarModel, model);
+                contentValues.put(SQLConnection.Column_GosNomer, gos_nomer);
+                contentValues.put(SQLConnection.Column_VIN, vin);
+                contentValues.put(SQLConnection.Column_FlagFirstTime, FlagFirstTime);
+                mdb.insert(SQLConnection.TABLE_NAME, null, contentValues);
+            }
+        } else if (v.getId() == R.id.Autorization) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+    }
+}
+
+package com.example.app;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.Window;
+import android.widget.TextView;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import java.io.IOException;
+
+public class ValuesActivity extends AppCompatActivity implements View.OnClickListener {
+
+    public static final String APP_PREFERENCESInfoAdmin = "datasettings";
+
+    SharedPreferences pref;
+    SharedPreferences preftoadmin;
+
+    TextView acc300;
+    TextView acc400;
+    TextView acc500;
+    TextView break200;
+    TextView break300;
+    TextView break400;
+    TextView bokacc300;
+    TextView bokacc400;
+    TextView bokacc600;
+
+    float averacc300;
+    float averacc400;
+    float averacc500;
+
+    float averbreak200;
+    float averbreak300;
+    float averbreak400;
+
+    float averbokacc300;
+    float averbokacc400;
+    float averbokacc600;
+
+    ConstraintLayout layoutval;
+
+    int FlagAcc300Zero;
+    int FlagAcc400Zero;
+    int FlagAcc500Zero;
+
+    int FlagBreak200Zero;
+    int FlagBreak300Zero;
+    int FlagBreak400Zero;
+
+    int FlagBokAcc300Zero;
+    int FlagBokAcc400Zero;
+    int FlagBokAcc600Zero;
+
+    SharedPreferences preffirst;
+    SharedPreferences prefsecond;
+    SharedPreferences prefthird;
+
+    SharedPreferences prefauto;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_values);
+
+        preftoadmin = getSharedPreferences(APP_PREFERENCESInfoAdmin, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editoradmin = preftoadmin.edit();
+
+        layoutval = findViewById(R.id.constrvalues);
+        pref = getSharedPreferences("settingscol", Context.MODE_PRIVATE);
+        layoutval.setBackgroundColor(pref.getInt("col", Color.WHITE));
+
+        preffirst = getSharedPreferences("firstsettings", Context.MODE_PRIVATE);
+        prefsecond = getSharedPreferences("secondsettings", Context.MODE_PRIVATE);
+        prefthird = getSharedPreferences("thirdsettings", Context.MODE_PRIVATE);
+        prefauto = getSharedPreferences("AutorSettings", Context.MODE_PRIVATE);
+
+        acc300 = findViewById(R.id.acc300v);
+        acc400 = findViewById(R.id.acc400v);
+        acc500 = findViewById(R.id.acc500v);
+
+        break200 = findViewById(R.id.break200v);
+        break300 = findViewById(R.id.break300v);
+        break400 = findViewById(R.id.break400v);
+
+        bokacc300 = findViewById(R.id.bokacc300v);
+        bokacc400 = findViewById(R.id.bokacc400v);
+        bokacc600 = findViewById(R.id.bokacc600v);
+
+        FlagAcc300Zero = 0;
+        FlagAcc400Zero = 0;
+        FlagAcc500Zero = 0;
+        FlagBreak200Zero = 0;
+        FlagBreak300Zero = 0;
+        FlagBreak400Zero = 0;
+        FlagBokAcc300Zero = 0;
+        FlagBokAcc400Zero = 0;
+        FlagBokAcc600Zero = 0;
+
+        int countacc300 = 0;
+        int countacc400 = 0;
+        int countacc500 = 0;
+
+        int countbreak200 = 0;
+        int countbreak300 = 0;
+        int countbreak400 = 0;
+
+        int countbokacc300 = 0;
+        int countbokacc400 = 0;
+        int countbokacc600 = 0;
+
+        int sumacc300 = 0;
+        int sumacc400 = 0;
+        int sumacc500 = 0;
+
+        int sumbreak200 = 0;
+        int sumbreak300 = 0;
+        int sumbreak400 = 0;
+
+        int sumbokacc300 = 0;
+        int sumbokacc400 = 0;
+        int sumbokacc600 = 0;
+
+        int[] valuesacc = new int[63030];
+        int[] valuesbreak = new int[63030];
+        int[] valuesbokacc = new int[63030];
+
+        int pogranznach = 6967;
+
+        int columnNumber = 3;
+
+        SharedPreferences.Editor firsteditor = preffirst.edit();
+        SharedPreferences.Editor secondeditor = prefsecond.edit();
+        SharedPreferences.Editor thirdeditor = prefthird.edit();
+
+        try {
+            Workbook wb = WorkbookFactory.create(getAssets().open("ValuesAverFinal.xls"));
+            Sheet sheet = wb.getSheetAt(0);
+
+            for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                Row row = sheet.getRow(i);
+                for (columnNumber = 3; columnNumber <= 4; columnNumber++) {
+                    Cell cell = row.getCell(columnNumber);
+                    if (columnNumber == 3) //смотрим OX
+                    {
+                        valuesacc[i] = (int) cell.getNumericCellValue();
+                        if (valuesacc[i] >= 300 && valuesacc[i] < 400) {
+                            countacc300++;
+                            sumacc300 += valuesacc[i];
+                            FlagAcc300Zero = 1;
+                        }
+                        if (valuesacc[i] >= 400 && valuesacc[i] < 500) {
+                            countacc400++;
+                            sumacc400 += valuesacc[i];
+                            FlagAcc400Zero = 1;
+                        }
+                        if (valuesacc[i] >= 500) {
+                            countacc500++;
+                            sumacc500 += valuesacc[i];
+                            FlagAcc500Zero = 1;
+                        }
+                    }
+                    if (columnNumber == 4)  // смотрим OY
+                    {
+                        valuesbokacc[i] = (int) cell.getNumericCellValue();
+
+                        if (Math.abs(valuesbokacc[i]) >= 300 && Math.abs(valuesbokacc[i]) < 400) {
+                            countbokacc300++;
+                            sumbokacc300 += Math.abs(valuesbokacc[i]);
+                            FlagBokAcc300Zero = 1;
+                        }
+                        if (Math.abs(valuesbokacc[i]) >= 400 && Math.abs(valuesbokacc[i]) < 600) {
+                            countbokacc400++;
+                            sumbokacc400 += Math.abs(valuesbokacc[i]);
+                            FlagBokAcc400Zero = 1;
+                        }
+                        if (Math.abs(valuesbokacc[i]) >= 600) {
+                            countbokacc600++;
+                            sumbokacc600 += Math.abs(valuesbokacc[i]);
+                            FlagBokAcc600Zero = 1;
+                        }
+                    }
+                    if (columnNumber == 3) {
+                        valuesbreak[i] = (int) cell.getNumericCellValue();
+
+                        if (valuesbreak[i] <= -200 && valuesbreak[i] > -300) {
+                            countbreak200++;
+                            sumbreak200 += valuesbreak[i];
+                            FlagBreak200Zero = 1;
+                        }
+                        if (valuesbreak[i] <= -300 && valuesbreak[i] > -400) {
+                            countbreak300++;
+                            sumbreak300 += valuesbreak[i];
+                            FlagBreak300Zero = 1;
+                        }
+                        if (valuesbreak[i] <= -400) {
+                            countbreak400++;
+                            sumbreak400 += valuesbreak[i];
+                            FlagBreak400Zero = 1;
+                        }
+                    }
+                }
+                    if (i == 6967) {
+                        if (FlagAcc300Zero == 1) {
+                            averacc300 = ((float) (sumacc300 / countacc300)) / 1000;
+                            firsteditor.putFloat("averacc300", averacc300);
+                        }
+                        if (FlagAcc400Zero == 1) {
+                            averacc400 = ((float) (sumacc400 / countacc400)) / 1000;
+                            firsteditor.putFloat("averacc400", averacc400);
+                        }
+                        if (FlagAcc500Zero == 1) {
+                            averacc500 = ((float) (sumacc500 / countacc500)) / 1000;
+                            firsteditor.putFloat("averacc500", averacc500);
+                        }
+                        if (FlagBreak200Zero == 1) {
+                            averbreak200 = ((float) (sumbreak200 / countbreak200)) / 1000;
+                            firsteditor.putFloat("averbreak200", averbreak200);
+                        }
+                        if (FlagBreak300Zero == 1) {
+                            averbreak300 = ((float) (sumbreak300 / countbreak300)) / 1000;
+                            firsteditor.putFloat("averbreak300", averbreak300);
+                        }
+                        if (FlagBreak400Zero == 1) {
+                            averbreak400 = ((float) (sumbreak400 / countbreak400)) / 1000;
+                            firsteditor.putFloat("averbreak400", averbreak400);
+                        }
+                        if (FlagBokAcc300Zero == 1) {
+                            averbokacc300 = ((float) (sumbokacc300 / countbokacc300)) / 1000;
+                            firsteditor.putFloat("averbokacc300", averbokacc300);
+                        }
+                        if (FlagBokAcc400Zero == 1) {
+                            averbokacc400 = ((float) (sumbokacc400 / countbokacc400)) / 1000;
+                            firsteditor.putFloat("averbokacc400", averbokacc400);
+                        }
+                        if (FlagBokAcc600Zero == 1) {
+                            averbokacc600 = ((float) (sumbokacc600 / countbokacc600)) / 1000;
+                            firsteditor.putFloat("averbokacc600", averbokacc600);
+                        }
+                        firsteditor.apply();
+                        pogranznach = 59777;
+                        averacc300 = 0;
+                        averacc400 = 0;
+                        averacc500 = 0;
+                        averbreak200 = 0;
+                        averbreak300 = 0;
+                        averbreak400 = 0;
+                        averbokacc300 = 0;
+                        averbokacc400 = 0;
+                        averbokacc600 = 0;
+                        countacc300 = 0;
+                        countacc400 = 0;
+                        countacc500 = 0;
+                        countbreak200 = 0;
+                        countbreak300 = 0;
+                        countbreak400 = 0;
+                        countbokacc300 = 0;
+                        countbokacc400 = 0;
+                        countbokacc600 = 0;
+                        sumacc300 = 0;
+                        sumacc400 = 0;
+                        sumacc500 = 0;
+                        sumbreak200 = 0;
+                        sumbreak300 = 0;
+                        sumbreak400 = 0;
+                        sumbokacc300 = 0;
+                        sumbokacc400 = 0;
+                        sumbokacc600 = 0;
+                        FlagAcc300Zero = 0;
+                        FlagAcc400Zero = 0;
+                        FlagAcc500Zero = 0;
+                        FlagBreak200Zero = 0;
+                        FlagBreak300Zero = 0;
+                        FlagBreak400Zero = 0;
+                        FlagBokAcc300Zero = 0;
+                        FlagBokAcc400Zero = 0;
+                        FlagBokAcc600Zero = 0;
+                    }
+                    if (i == 59777) {
+                        if (FlagAcc300Zero == 1) {
+                            averacc300 = ((float) (sumacc300 / countacc300)) / 1000;
+                            secondeditor.putFloat("averacc300", averacc300);
+                        }
+                        if (FlagAcc400Zero == 1) {
+                            averacc400 = ((float) (sumacc400 / countacc400)) / 1000;
+                            secondeditor.putFloat("averacc400", averacc400);
+                        }
+                        if (FlagAcc500Zero == 1) {
+                            averacc500 = ((float) (sumacc500 / countacc500)) / 1000;
+                            secondeditor.putFloat("averacc500", averacc500);
+                        }
+                        if (FlagBreak200Zero == 1) {
+                            averbreak200 = ((float) (sumbreak200 / countbreak200)) / 1000;
+                            secondeditor.putFloat("averbreak200", averbreak200);
+                        }
+                        if (FlagBreak300Zero == 1) {
+                            averbreak300 = ((float) (sumbreak300 / countbreak300)) / 1000;
+                            secondeditor.putFloat("averbreak300", averbreak300);
+                        }
+                        if (FlagBreak400Zero == 1) {
+                            averbreak400 = ((float) (sumbreak400 / countbreak400)) / 1000;
+                            secondeditor.putFloat("averbreak400", averbreak400);
+                        }
+                        if (FlagBokAcc300Zero == 1) {
+                            averbokacc300 = ((float) (sumbokacc300 / countbokacc300)) / 1000;
+                            secondeditor.putFloat("averbokacc300", averbokacc300);
+                        }
+                        if (FlagBokAcc400Zero == 1) {
+                            averbokacc400 = ((float) (sumbokacc400 / countbokacc400)) / 1000;
+                            secondeditor.putFloat("averbokacc400", averbokacc400);
+                        }
+                        if (FlagBokAcc600Zero == 1) {
+                            averbokacc600 = ((float) (sumbokacc600 / countbokacc600)) / 1000;
+                            secondeditor.putFloat("averbokacc600", averbokacc600);
+                        }
+                        secondeditor.apply();
+                        pogranznach = 63029;
+                    }
+                    if (i == 63029) {
+                        if (FlagAcc300Zero == 1) {
+                            averacc300 = ((float) (sumacc300 / countacc300)) / 1000;
+                            thirdeditor.putFloat("averacc300", averacc300);
+                        }
+                        if (FlagAcc400Zero == 1) {
+                            averacc400 = ((float) (sumacc400 / countacc400)) / 1000;
+                            thirdeditor.putFloat("averacc400", averacc400);
+                        }
+                        if (FlagAcc500Zero == 1) {
+                            averacc500 = ((float) (sumacc500 / countacc500)) / 1000;
+                            thirdeditor.putFloat("averacc500", averacc500);
+                        }
+                        if (FlagBreak200Zero == 1) {
+                            averbreak200 = ((float) (sumbreak200 / countbreak200)) / 1000;
+                            thirdeditor.putFloat("averbreak200", averbreak200);
+                        }
+                        if (FlagBreak300Zero == 1) {
+                            averbreak300 = ((float) (sumbreak300 / countbreak300)) / 1000;
+                            thirdeditor.putFloat("averbreak300", averbreak300);
+                        }
+                        if (FlagBreak400Zero == 1) {
+                            averbreak400 = ((float) (sumbreak400 / countbreak400)) / 1000;
+                            thirdeditor.putFloat("averbreak400", averbreak400);
+                        }
+                        if (FlagBokAcc300Zero == 1) {
+                            averbokacc300 = ((float) (sumbokacc300 / countbokacc300)) / 1000;
+                            thirdeditor.putFloat("averbokacc300", averbokacc300);
+                        }
+                        if (FlagBokAcc400Zero == 1) {
+                            averbokacc400 = ((float) (sumbokacc400 / countbokacc400)) / 1000;
+                            thirdeditor.putFloat("averbokacc400", averbokacc400);
+                        }
+                        if (FlagBokAcc600Zero == 1) {
+                            averbokacc600 = ((float) (sumbokacc600 / countbokacc600)) / 1000;
+                            thirdeditor.putFloat("averbokacc600", averbokacc600);
+                        }
+                        thirdeditor.apply();
+                        //pogranznach = 63030;
+            }
+            if (FlagAcc300Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averacc300 = preffirst.getFloat("averacc300", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averacc300 = prefsecond.getFloat("averacc300", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averacc300 = prefthird.getFloat("averacc300", 0);
+                }
+                acc300.setText("" + averacc300);
+            } else {
+                acc300.setText("NO DATA");
+            }
+            if (FlagAcc400Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averacc400 = preffirst.getFloat("averacc400", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averacc400 = prefsecond.getFloat("averacc400", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averacc400 = prefthird.getFloat("averacc400", 0);
+                }
+                acc400.setText("" + averacc400);
+            } else {
+                acc400.setText("NO DATA");
+            }
+            if (FlagAcc500Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averacc500 = preffirst.getFloat("averacc500", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averacc500 = prefsecond.getFloat("averacc500", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averacc500 = prefthird.getFloat("averacc500", 0);
+                }
+                acc500.setText("" + averacc500);
+            } else {
+                acc500.setText("NO DATA");
+            }
+            if (FlagBreak200Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averbreak200 = preffirst.getFloat("averbreak200", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averbreak200 = prefsecond.getFloat("averbreak200", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averbreak200 = prefthird.getFloat("averbreak200", 0);
+                }
+                break200.setText("" + averbreak200);
+            } else {
+                break200.setText("NO DATA");
+            }
+            if (FlagBreak300Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averbreak300 = preffirst.getFloat("averbreak300", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averbreak300 = prefsecond.getFloat("averbreak300", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averbreak300 = prefthird.getFloat("averbreak300", 0);
+                }
+                break300.setText("" + averbreak300);
+            } else {
+                break300.setText("NO DATA");
+            }
+            if (FlagBreak400Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averbreak400 = preffirst.getFloat("averbreak400", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averbreak400 = prefsecond.getFloat("averbreak400", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averbreak400 = prefthird.getFloat("averbreak400", 0);
+                }
+                break400.setText("" + averbreak400);
+            } else {
+                break400.setText("NO DATA");
+            }
+            if (FlagBokAcc300Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averbokacc300 = preffirst.getFloat("averbokacc300", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averbokacc300 = prefsecond.getFloat("averbokacc300", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averbokacc300 = prefthird.getFloat("averbokacc300", 0);
+                }
+                bokacc300.setText("" + averbokacc300);
+            } else {
+                bokacc300.setText("NO DATA");
+            }
+            if (FlagBokAcc400Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averbokacc400 = preffirst.getFloat("averbokacc400", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averbokacc400 = prefsecond.getFloat("averbokacc400", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averbokacc400 = prefthird.getFloat("averbokacc400", 0);
+                }
+                bokacc400.setText("" + averbokacc400);
+            } else {
+                bokacc400.setText("NO DATA");
+            }
+            if (FlagBokAcc600Zero == 1) {
+                if ((prefauto.getString("login", "")).equals("Ivangv@inbox.ru")) {
+                    averbokacc600 = preffirst.getFloat("averbokacc600", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("petrandr@list.ru")) {
+                    averbokacc600 = prefsecond.getFloat("averbokacc600", 0);
+                }
+                if ((prefauto.getString("login", "")).equals("alex@list.ru")) {
+                    averbokacc600 = prefthird.getFloat("averbokacc600", 0);
+                }
+                bokacc600.setText("" + averbokacc600);
+            } else {
+                bokacc600.setText("NO DATA");
+            }
+        } catch (IOException ex) {
+            return;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.ACC || v.getId() == R.id.BOKACC || v.getId() == R.id.BREAK) {
+            Intent intent = new Intent(this, StatisticsActivity.class);
+            startActivity(intent);
+        }
+    }
+}
+
+package com.example.app;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
+
+public class AdminSeeUsers extends AppCompatActivity {
+
+    TextView info;
+    String result = "";
+
+    SharedPreferences preffromvalues;
+    SharedPreferences prefcol;
+    NestedScrollView lay;
+
+    SharedPreferences preffirst;
+    SharedPreferences prefsecond;
+    SharedPreferences prefthird;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_admin_see_users);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        info = findViewById(R.id.TextViewScroll);
+        lay = findViewById(R.id.cons);
+
+        preffromvalues = getSharedPreferences("datasettings", Context.MODE_PRIVATE);
+        prefcol = getSharedPreferences("settingscol", Context.MODE_PRIVATE);
+
+        lay.setBackgroundColor(prefcol.getInt("col", Color.WHITE));
+
+        preffirst = getSharedPreferences("firstsettings", Context.MODE_PRIVATE);
+        prefsecond = getSharedPreferences("secondsettings", Context.MODE_PRIVATE);
+        prefthird = getSharedPreferences("thirdsettings", Context.MODE_PRIVATE);
+
+        SQLConnection sqlconn = new SQLConnection(this);
+        SQLiteDatabase mydb = sqlconn.getWritableDatabase();
+        Cursor cursor = mydb.rawQuery("SELECT * FROM " + SQLConnection.TABLE_NAME + " WHERE _id > 1", null);
+
+            result = "\n" + "1) " + preffirst.getString("surname", "") + " | " + preffirst.getString("name", "") + " | " +
+                    preffirst.getString("name2", "") + " | " + preffirst.getString("seria", "") + " | " +
+                    preffirst.getString("nomer", "") + " | " + preffirst.getString("e_mail", "") + " | " +
+                    preffirst.getString("imei", "") + " | " +  preffirst.getString("brand", "") + " | " +
+                    preffirst.getString("model", "") + " | " + preffirst.getString("gos_nomer", "") + " | " +
+                    preffirst.getString("vin", "") + " | " +preffirst.getFloat("averacc300", 0) + " | " +
+                    preffirst.getFloat("averacc400", 0) + " | " + preffirst.getFloat("averacc500", 0) + " | " +
+                    preffirst.getFloat("averbreak200", 0) + " | " + preffirst.getFloat("averbreak300", 0) + " | " +
+                    preffirst.getFloat("averbreak400", 0) + " | " + preffirst.getFloat("averbokacc300", 0) + " | " +
+                    preffirst.getFloat("averbokacc400", 0) + " | " + preffirst.getFloat("averbokacc600", 0) + " | " +
+                    "\n" + "\n"+
+                    "2) " + prefsecond.getString("surname", "") + " | " + prefsecond.getString("name", "") + " | " +
+                    prefsecond.getString("name2", "") + " | " + prefsecond.getString("seria", "") + " | " +
+                    prefsecond.getString("nomer", "") + " | " + prefsecond.getString("e_mail", "") + " | " +
+                    prefsecond.getString("imei", "") + " | " +  prefsecond.getString("brand", "") + " | " +
+                    prefsecond.getString("model", "") + " | " + prefsecond.getString("gos_nomer", "") + " | " +
+                    prefsecond.getString("vin", "") + " | " + prefsecond.getFloat("averacc300", 0) + " | " +
+                    prefsecond.getFloat("averacc400", 0) + " | " + prefsecond.getFloat("averacc500", 0) + " | " +
+                    prefsecond.getFloat("averbreak200", 0) + " | " + prefsecond.getFloat("averbreak300", 0) + " | " +
+                    prefsecond.getFloat("averbreak400", 0) + " | " + prefsecond.getFloat("averbokacc300", 0) + " | " +
+                    prefsecond.getFloat("averbokacc400", 0) + " | " + prefsecond.getFloat("averbokacc600", 0) + " | " +
+                    "\n" + "\n"+
+                    "3) " + prefthird.getString("surname", "") + " | " + prefthird.getString("name", "") + " | " +
+                    prefthird.getString("name2", "") + " | " + prefthird.getString("seria", "") + " | " +
+                    prefthird.getString("nomer", "") + " | " + prefthird.getString("e_mail", "") + " | " +
+                    prefthird.getString("imei", "") + " | " +  prefthird.getString("brand", "") + " | " +
+                    prefthird.getString("model", "") + " | " + prefthird.getString("gos_nomer", "") + " | " +
+                    prefthird.getString("vin", "") + " | " + prefthird.getFloat("averacc300", 0) + " | " +
+                    prefthird.getFloat("averacc400", 0) + " | " + prefthird.getFloat("averacc500", 0) + " | " +
+                    prefthird.getFloat("averbreak200", 0) + " | " + prefthird.getFloat("averbreak300", 0) + " | " +
+                    prefthird.getFloat("averbreak400", 0) + " | " + prefthird.getFloat("averbokacc300", 0) + " | " +
+                    prefthird.getFloat("averbokacc400", 0) + " | " + prefthird.getFloat("averbokacc600", 0) + " | " +
+                    "\n";
+        if (result.equals("")) {
+            info.setText("NO DATA");
+        } else {
+            info.setText(result);
+        }
+    }
+}
+
+
+package com.example.app;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class MenuActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private BottomNavigationView profile_button;
+    private BottomNavigationView settings_button;
+    private BottomNavigationView data_button;
+    TextView AdminNotif;
+
+    Button Signout;
+
+    int FlagFirstTime;
+
+    SharedPreferences pref;
+    SharedPreferences prefcol;
+    SharedPreferences preferencesr;
+    ConstraintLayout layout;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        prefcol = getSharedPreferences("settingscol", Context.MODE_PRIVATE);
+        layout = findViewById(R.id.containermenu);
+        layout.setBackgroundColor(prefcol.getInt("col", Color.WHITE));
+    }
+
+        private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.data_button:
+                    if((pref.getString("CheckAd", " ")).equals("1"))
+                    {
+                        Intent intent = new Intent(MenuActivity.this, AdminSeeUsers.class);
+                        startActivity(intent);
+                        return true;
+                    }
+                    else if((pref.getString("CheckAd", " ")).equals("0"))
+                    {
+                        Intent intent = new Intent(MenuActivity.this,ValuesActivity.class);
+                        startActivity(intent);
+                        return true;
+                    }
+                case R.id.profile_button:
+                    Intent intent1 = new Intent(MenuActivity.this, ThirdActivity.class);
+                    startActivity(intent1);
+                    return true;
+                case R.id.settings_button:
+                    Intent intent2 = new Intent(MenuActivity.this, OptionsActivity.class);
+                    startActivity(intent2);
+                    return true;
+            }
+            return false;
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_menu);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        preferencesr = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+        FlagFirstTime = preferencesr.getInt("FlagFirstTime", 5);
+        FlagFirstTime = 1;
+        SharedPreferences.Editor editormenu = preferencesr.edit();
+        editormenu.putInt("FlagFirstTime", FlagFirstTime);
+        editormenu.apply();
+
+        Signout = findViewById(R.id.signout);
+        AdminNotif = findViewById(R.id.CheckAdmin);
+
+        pref = getSharedPreferences("MSettings", Context.MODE_PRIVATE);
+
+        AdminNotif.setVisibility(View.INVISIBLE);
+        if((pref.getString("CheckAd", " ")).equals("1"))
+        {
+            AdminNotif.setVisibility(View.VISIBLE);
+            AdminNotif.setText("Вы вошли как АДМИН");
+        }
+        else
+        {
+            AdminNotif.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId() == R.id.signout)
+        {
+            AdminNotif.setVisibility(View.INVISIBLE);
+            Intent intent = new Intent(this, MainActivity.class);
+            prefcol.edit().clear();
+            preferencesr.edit().clear();
+            //pref.edit().apply();
+            prefcol.edit().apply();
+            preferencesr.edit().apply();
+            startActivity(intent);
+        }
+    }
+}
+
+package com.example.app;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
+import android.widget.TextView;
+
+public class StatisticsActivity extends AppCompatActivity  {
+
+    SharedPreferences prefc;
+    ConstraintLayout constraintLayout;
+
+    TextView info;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_statistics);
+
+        prefc = getSharedPreferences("settingscol", Context.MODE_PRIVATE);
+        constraintLayout = findViewById(R.id.ConsLay);
+        constraintLayout.setBackgroundColor(prefc.getInt("col", Color.WHITE));
+
+        info = findViewById(R.id.infopok);
+        info.setText("У каждой из трех величин (Ускорения/Торможения/Боковые ускорения) есть по три порога, которые указаны на предыдущем экране." +
+                "\n" + "\n" + "Ускорение - это положительная часть оси Ox при вычислениях. " +
+                "\n" + "\n" +"Торможение - это отрицательная часть оси Ox при вычисления. " +
+                "\n" + "\n" +"Боковое ускорение (считается по модулю) - это ось Oy. " +
+                "\n" + "\n" + "Если нет данных по какому-то порогу(как правило, верхнему), то это значит, что водитель просто не совершал таких резких маневров. Отсутствие такой величины означает, что вождение было аккуратным и плавным." +
+                "\n" + "\n" + "Чем ближе среднее значение к критической отметке порога, тем больше пришло значений, граничащих уже со следующим порогом." +
+                "\n" + "\n" + "Старайтесь не совершать резких маневров, которые могут привести к ДТП." +
+                "\n" + "\n" + "Будьте аккуратны и внимательны за рулем.");
+    }
+}
+
+
+package com.example.app;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    public static final String APP_PREFERENCES1 = "MSettings";
+    public static final String APP_PREFERENCESAUTO = "AutorSettings";
+
+    String passdb;
+    String logdb;
+
+    String password;
+    String login;
+
+    EditText PassWord;
+    EditText LogIn;
+
+    Button Sign;
+    Button Registration;
+
+    TextView Errorconn;
+    TextView Errorzar;
+    TextView Erroror;
+
+    String CheckAd;
+
+    SharedPreferences pref;
+    SQLConnection sqlconn;
+
+    SharedPreferences autoriz;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getSupportActionBar().hide();
+        setContentView(R.layout.activity_main);
+
+        LogIn = findViewById(R.id.LogIn);
+        pref = getSharedPreferences(APP_PREFERENCES1, MODE_PRIVATE);
+        PassWord = findViewById(R.id.PassWord);
+        Sign = findViewById(R.id.SignIn);
+        Registration = findViewById(R.id.Registrations);
+
+        Errorconn = findViewById(R.id.Errorconn);
+        Errorzar = findViewById(R.id.Errorzar);
+        Erroror = findViewById(R.id.Erroror);
+
+        CheckAd = "0";
+
+        autoriz = getSharedPreferences(APP_PREFERENCESAUTO, Context.MODE_PRIVATE);
+
+        sqlconn = new SQLConnection(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        if (v.getId() == R.id.SignIn) {
+            SQLiteDatabase mdb = sqlconn.getWritableDatabase();
+            Cursor cursor = mdb.query(SQLConnection.TABLE_NAME, null, null, null, null, null, null);
+            String adminlogin = "Romario2002@list.ru";
+            String adminpassword = "12345";
+            SharedPreferences.Editor editad = pref.edit();
+            SharedPreferences.Editor autoeditor = autoriz.edit();
+            password = PassWord.getText().toString();
+            login = LogIn.getText().toString();
+
+                if (password.equals(adminpassword) && login.equals(adminlogin))
+                {
+                    Errorconn.setVisibility(View.INVISIBLE);
+                    Errorzar.setVisibility(View.INVISIBLE);
+                    Erroror.setVisibility(View.INVISIBLE);
+                    CheckAd = "1";
+                    editad.putString("CheckAd", CheckAd);
+                    editad.putString("adminlogin", adminlogin);
+                    editad.putString("adminpassword", adminpassword);
+                    autoeditor.putString("login", login);
+                    editad.apply();
+                    autoeditor.apply();
+                    Intent intent = new Intent(this, MenuActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    Errorconn.setVisibility(View.VISIBLE);
+                    Errorzar.setVisibility(View.VISIBLE);
+                    Erroror.setVisibility(View.VISIBLE);
+                }
+            if (cursor.moveToFirst()) {
+                do {
+                    password = PassWord.getText().toString();
+                    login = LogIn.getText().toString();
+                    int LogIndex = cursor.getColumnIndex(SQLConnection.Column_Log);
+                    int PassIndex = cursor.getColumnIndex(SQLConnection.Column_Pass);
+                    logdb = cursor.getString(LogIndex);
+                    passdb = cursor.getString(PassIndex);
+                    if (password.equals(passdb) && login.equals(logdb) && password != null && login != null) {
+                        if (password.equals(adminpassword) && login.equals(adminlogin)) {
+                            CheckAd = "1";
+                            edit.putString("CheckAd", CheckAd);
+                            cursor.close();
+                            edit.apply();
+                        }
+                        Intent intent = new Intent(this, MenuActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Errorconn.setVisibility(View.VISIBLE);
+                        Errorzar.setVisibility(View.VISIBLE);
+                        Erroror.setVisibility(View.VISIBLE);
+                    }
+                } while (cursor.moveToNext());
+            }
+        }
+        if (v.getId() == R.id.Registrations) {
+            Intent intent1 = new Intent(this, Registration.class);
+            startActivity(intent1);
+        }
+    }
+}
+
